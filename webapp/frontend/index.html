@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S2ST English to Vietnamese</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>English → Vietnamese Speech Translation</h1>
+            <p>Tải lên file âm thanh (<code>.wav</code>) tiếng Anh, bản dịch sẽ được phát tự động.</p>
+        </header>
+        
+        <main>
+            <div class="upload-box">
+                <input type="file" id="audio-upload" accept=".wav" style="display: none;">
+                <button id="upload-button">Chọn File Âm Thanh</button>
+            </div>
+
+            <div id="status-area">
+                <p id="status-message">Chưa có file nào được chọn...</p>
+            </div>
+            
+            <div id="result-area" class="hidden">
+                <h2>Kết Quả Dịch</h2>
+                <audio id="result-audio" controls></audio>
+            </div>
+        </main>
+
+        <footer>
+            <p>S2ST Project Demo</p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

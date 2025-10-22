@@ -1,0 +1,9 @@
+torch
+torchaudio
+transformers
+flask
+werkzeug
+tqdm
+streamlit
+pandas
+pyinstaller
