@@ -35,7 +35,7 @@ Hệ thống được thiết kế theo **kiến trúc module hóa**, cho phép 
 **Bước 1:** Clone repository
 ```bash
 git clone <URL_CUA_BAN_DEN_PROJECT_NAY>
-cd S2ST_Project
+cd Project
 ```
 
 **Bước 2:** Tạo môi trường ảo (khuyến nghị)
