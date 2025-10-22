@@ -1,0 +1,14 @@
+model:
+  hubert_model: "facebook/hubert-base-ls960"
+  feature_layer: 6
+  quantizer:
+    type: "vqvae" # vqvae | gumbel
+    input_dim: 768 # HuBERT base hidden size
+    num_embeddings: 512
+    commitment_cost: 0.25
+
+training:
+  epochs: 20
+  batch_size: 16
+  learning_rate: 0.0003
+  output_dir: "./checkpoints/quantizer"

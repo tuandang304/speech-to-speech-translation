@@ -1,0 +1,8 @@
+torch
+torchaudio
+transformers
+vector-quantize-pytorch
+pyyaml
+tqdm
+scikit-learn
+joblib
