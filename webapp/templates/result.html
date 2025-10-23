@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả dịch</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Kết quả dịch</h1>
+        
+        <div class="audio-player">
+            <h2>Âm thanh gốc (Tiếng Anh)</h2>
+            <p>{{ original_file }}</p>
+            <audio controls>
+                <source src="{{ url_for('play_audio', folder='uploads', filename=original_file) }}" type="audio/wav">
+                Trình duyệt của bạn không hỗ trợ thẻ audio.
+            </audio>
+        </div>
+
+        <div class="audio-player">
+            <h2>Âm thanh đã dịch (Tiếng Việt)</h2>
+            <p>{{ translated_file }}</p>
+            <audio controls autoplay>
+                <source src="{{ url_for('play_audio', folder='outputs', filename=translated_file) }}" type="audio/wav">
+                Trình duyệt của bạn không hỗ trợ thẻ audio.
+            </audio>
+        </div>
+
+        <a href="/" class="back-link">Thử lại với file khác</a>
+    </div>
+</body>
+</html>

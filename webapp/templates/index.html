@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech-to-Speech Translation (EN-VI)</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Dịch Nói trực tiếp (Anh -> Việt)</h1>
+        <p>Tải lên một file âm thanh <code>.wav</code> tiếng Anh để dịch sang tiếng Việt.</p>
+        <form action="/translate" method="post" enctype="multipart/form-data">
+            <div class="file-upload-wrapper">
+                <input type="file" name="audio_file" id="audio_file" accept=".wav" required>
+                <label for="audio_file" class="file-upload-label">Chọn File</label>
+            </div>
+            <span id="file-name" class="file-name">Chưa có file nào được chọn</span>
+            <button type="submit">Dịch</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('audio_file').addEventListener('change', function() {
+            var fileName = this.files[0] ? this.files[0].name : 'Chưa có file nào được chọn';
+            document.getElementById('file-name').textContent = fileName;
+        });
+    </script>
+</body>
+</html>
