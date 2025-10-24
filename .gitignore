@@ -1,0 +1,35 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Data and cache
+cache/
+data/
+results/
+
+# Checkpoints (allow configs only)
+checkpoints/
+!checkpoints/**/config.json
+
+# Large/binary artifacts
+*.npy
+*.npz
+*.pt
+*.pth
+*.bin
+*.wav
+*.mp3
+*.flac
+
+# Logs
+*.log
+

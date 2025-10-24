@@ -30,18 +30,29 @@ def main():
     criterion = nn.CrossEntropyLoss()
 
     # --- Data ---
-    # Lấy các cặp file
-    src_files = sorted([f for f in os.listdir(os.path.join(input_dir, 'en')) if f.endswith('.npy')])
-    tgt_files = sorted([f for f in os.listdir(os.path.join(input_dir, 'vie')) if f.endswith('.npy')])
+    # Ghép cặp theo basename chung để tránh lệch thứ tự
+    en_dir = os.path.join(input_dir, 'en')
+    vi_dir = os.path.join(input_dir, 'vie')
+    if not (os.path.isdir(en_dir) and os.path.isdir(vi_dir)):
+        print(f"Thiếu thư mục units: {en_dir} hoặc {vi_dir}")
+        return
+
+    en_set = {os.path.splitext(f)[0] for f in os.listdir(en_dir) if f.endswith('.npy')}
+    vi_set = {os.path.splitext(f)[0] for f in os.listdir(vi_dir) if f.endswith('.npy')}
+    common_ids = sorted(en_set.intersection(vi_set))
+    if not common_ids:
+        print("Không tìm thấy cặp EN–VI nào trùng tên trong cache/units.")
+        return
+    print(f"Số cặp EN–VI dùng để huấn luyện: {len(common_ids)}")
     
     print("Bắt đầu huấn luyện Translator...")
     model.train()
     for epoch in range(epochs):
         total_loss = 0
-        pbar = tqdm(zip(src_files, tgt_files), total=len(src_files), desc=f"Epoch {epoch+1}/{epochs}")
-        for src_file, tgt_file in pbar:
-            src_units = torch.from_numpy(np.load(os.path.join(input_dir, 'en', src_file))).long().unsqueeze(0).to(device)
-            tgt_units = torch.from_numpy(np.load(os.path.join(input_dir, 'vie', tgt_file))).long().unsqueeze(0).to(device)
+        pbar = tqdm(common_ids, total=len(common_ids), desc=f"Epoch {epoch+1}/{epochs}")
+        for bid in pbar:
+            src_units = torch.from_numpy(np.load(os.path.join(en_dir, f"{bid}.npy"))).long().unsqueeze(0).to(device)
+            tgt_units = torch.from_numpy(np.load(os.path.join(vi_dir, f"{bid}.npy"))).long().unsqueeze(0).to(device)
             
             # Đảm bảo độ dài bằng nhau cho mô hình đơn giản này
             min_len = min(src_units.size(1), tgt_units.size(1))
@@ -60,7 +71,8 @@ def main():
             total_loss += loss.item()
             pbar.set_postfix({'loss': loss.item()})
             
-        avg_loss = total_loss / len(src_files)
+        denom = max(1, len(common_ids))
+        avg_loss = total_loss / denom
         print(f"Epoch {epoch+1}/{epochs}, Average Loss: {avg_loss:.4f}")
         
     os.makedirs('checkpoints', exist_ok=True)

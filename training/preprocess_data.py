@@ -20,8 +20,19 @@ def main():
     unit_cache_dir = 'cache/units'
     
     os.makedirs(feature_cache_dir, exist_ok=True)
-    os.makedirs(os.path.join(unit_cache_dir, 'en'), exist_ok=True)
-    os.makedirs(os.path.join(unit_cache_dir, 'vie'), exist_ok=True)
+    # Xác định ngôn ngữ khả dụng thay vì cố định 'en' và 'vie'
+    requested_langs = ['en', 'vie']
+    available_langs = []
+    for lang in requested_langs:
+        lang_dir = os.path.join(data_dir, lang)
+        if os.path.isdir(lang_dir):
+            available_langs.append(lang)
+            os.makedirs(os.path.join(unit_cache_dir, lang), exist_ok=True)
+        else:
+            print(f"[WARN] Bỏ qua vì thiếu thư mục dữ liệu: {lang_dir}")
+    if not available_langs:
+        print(f"[ERR] Không có ngôn ngữ nào khả dụng trong '{data_dir}'. Vui lòng tạo 'en' hoặc 'vie'.")
+        return
     
     # --- Load Models ---
     print("Tải các model cần thiết cho tiền xử lý...")
@@ -33,7 +44,7 @@ def main():
         print("\nCheckpoint Quantizer không tìm thấy. Cần trích xuất features trước.")
         # Step 1: Extract features for quantizer training
         print("Bước 1: Trích xuất features cho Quantizer...")
-        for lang in ['en', 'vie']:
+        for lang in available_langs:
             lang_dir = os.path.join(data_dir, lang)
             for fname in tqdm(os.listdir(lang_dir), desc=f"Extracting features for {lang}"):
                 if fname.endswith('.wav'):
@@ -47,7 +58,7 @@ def main():
     
     # --- Process Data ---
     print("\nBắt đầu tiền xử lý: Trích xuất discrete units...")
-    for lang in ['en', 'vie']:
+    for lang in available_langs:
         lang_dir = os.path.join(data_dir, lang)
         pbar = tqdm(os.listdir(lang_dir), desc=f"Processing {lang}")
         for fname in pbar:
