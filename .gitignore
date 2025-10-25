@@ -33,3 +33,5 @@ checkpoints/
 # Logs
 *.log
 
+
+test_**

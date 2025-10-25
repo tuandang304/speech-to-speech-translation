@@ -36,3 +36,10 @@ class FeatureExtractor:
 
 def load_model(checkpoint_dir, device='cpu'):
     return FeatureExtractor(model_path=checkpoint_dir, device=device)
+
+
+if __name__ == "__main__":
+    test_extractor = load_model('checkpoints/feature_extractor', device='cpu')
+    features = test_extractor.extract('data/test_vie/1.wav')
+
+    print("Extracted features shape:", features.shape)

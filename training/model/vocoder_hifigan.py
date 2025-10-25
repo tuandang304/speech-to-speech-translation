@@ -40,20 +40,30 @@ class Vocoder:
 
         # 3) Cố gắng tải HiFi-GAN qua torch.hub (đúng callable), nếu không sẽ fallback Griffin-Lim
         self.generator = None
-        try:
-            self.generator = torch.hub.load('bshall/hifigan:main', 'hifigan_hubert_discrete').to(self.device)
-            self.generator.eval()
-            print("HiFi-GAN tải thành công từ bshall/hifigan:main::hifigan_hubert_discrete")
-        except Exception as e:
-            self.generator = None
+        hifigan_sources = [
+            # Thử các nguồn HiFi-GAN khác nhau
+            ('bshall/hifigan:main', 'hifigan_hubert_discrete'),
+            ('bshall/hifigan:main', 'hifigan'),
+            # Có thể thêm các nguồn khác nếu cần
+        ]
+        
+        for repo, model_name in hifigan_sources:
+            try:
+                print(f"Đang thử tải HiFi-GAN từ {repo}::{model_name}...")
+                self.generator = torch.hub.load(repo, model_name, trust_repo=True).to(self.device)
+                self.generator.eval()
+                print(f"✓ HiFi-GAN tải thành công từ {repo}::{model_name}")
+                break
+            except Exception as e:
+                print(f"✗ Không tải được từ {repo}::{model_name}: {e}")
+                continue
 
         # Chuẩn bị fallback Vocoder: InverseMel + Griffin-Lim
         n_stft = self.n_fft // 2 + 1
-        self.inv_mel = torchaudio.transforms.InverseMelScale(
-            n_stft=n_stft, n_mels=self.n_mels, sample_rate=self.sample_rate
-        ).to(self.device)
+        # Dùng driver="gelsy" (SVD-based) thay vì "gels" để xử lý ma trận ill-conditioned tốt hơn
+        self.inv_mel = torchaudio.transforms.InverseMelScale(n_stft=n_stft, n_mels=self.n_mels, sample_rate=self.sample_rate, driver="gelsy").to(self.device)
         self.griffin = torchaudio.transforms.GriffinLim(
-            n_fft=self.n_fft, hop_length=self.hop_length
+            n_fft=self.n_fft, hop_length=self.hop_length, n_iter=32
         ).to(self.device)
 
         if self.generator is None:
@@ -95,8 +105,24 @@ class Vocoder:
         else:
             # Fallback: InverseMel + Griffin-Lim
             mel_mag = torch.relu(mel_chw.squeeze(0))   # (mel_bins, T)
-            linear_mag = self.inv_mel(mel_mag)         # (n_stft, T)
-            waveform = self.griffin(linear_mag).cpu()  # (T)
+            
+            # Debug: kiểm tra mel magnitude
+            print(f"[DEBUG] mel_mag shape: {mel_mag.shape}, min: {mel_mag.min().item():.4f}, max: {mel_mag.max().item():.4f}, mean: {mel_mag.mean().item():.4f}")
+            
+            # Clamp mel magnitude để tránh giá trị quá nhỏ/lớn
+            mel_mag = torch.clamp(mel_mag, min=1e-5, max=100.0)
+            
+            # Thêm small epsilon để tránh singular matrix
+            mel_mag = mel_mag + 1e-6
+            
+            try:
+                linear_mag = self.inv_mel(mel_mag)         # (n_stft, T)
+                waveform = self.griffin(linear_mag).cpu()  # (T)
+            except torch._C._LinAlgError as e:
+                print(f"[ERROR] InverseMelScale failed: {e}")
+                print("[FALLBACK] Trả về waveform zero thay vì crash")
+                waveform = torch.zeros(mel_mag.shape[1] * self.hop_length)
+            
             return waveform
 
 def load_model(quantizer_model, checkpoint_path, device='cpu'):

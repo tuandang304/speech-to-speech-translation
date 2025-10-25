@@ -1,5 +1,5 @@
 import argparse
-from model.pipeline_inference import S2ST_Pipeline
+from training.model.pipeline_inference import S2ST_Pipeline
 import torch
 
 def main():

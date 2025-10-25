@@ -21,7 +21,7 @@ def main():
     
     os.makedirs(feature_cache_dir, exist_ok=True)
     # Xác định ngôn ngữ khả dụng thay vì cố định 'en' và 'vie'
-    requested_langs = ['en', 'vie']
+    requested_langs = ['test_en', 'test_vie']
     available_langs = []
     for lang in requested_langs:
         lang_dir = os.path.join(data_dir, lang)
@@ -37,6 +37,7 @@ def main():
     # --- Load Models ---
     print("Tải các model cần thiết cho tiền xử lý...")
     feat_extractor = feature_extractor.load_model('checkpoints/feature_extractor', device=device)
+    # feat_extractor = feature_extractor.load_model(device=device)
     
     # Tự động train quantizer nếu chưa có
     quantizer_checkpoint = 'checkpoints/quantizer.pt'

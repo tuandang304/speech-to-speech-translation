@@ -19,8 +19,8 @@ def compute_mel_spec(waveform, sr=16000, n_mels=80, n_fft=400, hop_length=160):
 
 def main():
     # --- Configs ---
-    unit_dir = 'cache/units/vie'
-    audio_dir = 'data/vie'
+    unit_dir = 'cache/units/test_vie'
+    audio_dir = 'data/test_vie'
     quantizer_checkpoint = 'checkpoints/quantizer.pt'
     checkpoint_path = 'checkpoints/vocoder.pt'
     epochs = 20

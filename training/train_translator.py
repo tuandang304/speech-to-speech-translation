@@ -31,8 +31,8 @@ def main():
 
     # --- Data ---
     # Ghép cặp theo basename chung để tránh lệch thứ tự
-    en_dir = os.path.join(input_dir, 'en')
-    vi_dir = os.path.join(input_dir, 'vie')
+    en_dir = os.path.join(input_dir, 'test_en')
+    vi_dir = os.path.join(input_dir, 'test_vie')
     if not (os.path.isdir(en_dir) and os.path.isdir(vi_dir)):
         print(f"Thiếu thư mục units: {en_dir} hoặc {vi_dir}")
         return

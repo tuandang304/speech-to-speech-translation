@@ -65,3 +65,13 @@ def load_model(checkpoint_path, device='cpu'):
     model.eval()
     print(f"Quantizer đã được tải từ '{checkpoint_path}' lên {device}.")
     return model
+
+
+if __name__ == "__main__":
+    # Kiểm tra model
+    test_quantizer = load_model('checkpoints/quantizer.pt', device='cpu')
+    dummy_features = torch.randn(100, 768)  # Giả sử 100 time-steps, feature dim 768
+    decoded, indices, loss = test_quantizer(dummy_features)
+    print("Decoded shape:", decoded.shape)
+    print("Indices shape:", indices.shape)
+    print("Loss:", loss.item())
