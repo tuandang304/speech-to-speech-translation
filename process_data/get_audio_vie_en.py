@@ -5,14 +5,13 @@ import subprocess
 import pandas as pd
 
 audio_link = 'process_data/audio_link.csv'
-df = pd.read_csv(audio_link)
-df['had_collected'].fillna(0, inplace=True)
-
 dir_vie_m4a = 'data/vie_m4a/'
 dir_en_m4a = 'data/en_m4a/'
+num_videos = 4 # number of videos to download audio from
 
-dir_vie_wav = 'data/vie_wav/'
-dir_en_wav = 'data/en_wav/'
+df = pd.read_csv(audio_link)
+df['had_collected'] = df['had_collected'].fillna(0)
+count = df['had_collected'].value_counts().get(1, 0)
 
 def download_audio_from_youtube(id, youtube_url, output_path):
     comnand = [
@@ -25,29 +24,34 @@ def download_audio_from_youtube(id, youtube_url, output_path):
 
 df_links = df[df['had_collected'] == 0]
 for idx, row in df_links.iterrows():
-    youtube_url = row['link']
-    
-    proc = subprocess.run(['yt-dlp', '-F', youtube_url], capture_output=True, text=True)
-    # matches = re.findall(r'^(\S+)\s+\S+\s+audio only.*mp4a.*\[vi\].*$', proc.stdout, re.MULTILINE)
+    if count >= num_videos:
+        print(f"[GET] Reached the limit of videos to process ({count}/{num_videos})")
+        break
 
+    youtube_url = row['link']
+    print(f"[data] Downloading video: {youtube_url}")
+    proc = subprocess.run(['yt-dlp', '-F', youtube_url], capture_output=True, text=True)
+
+    vi_id = None
+    en_id = None
     for line in proc.stdout.splitlines():
-        vi_id = None
-        en_id = None
-        if "[vi]" in line and "audio only" in line:
+        if "[vi]" in line and "m4a" in line:
             if "medium" in line:
                 vi_id = re.match(r'^(\S+)', line).group(1)
-        elif "[en]" in line and "audio only" in line:
+        elif "[en]" in line and "m4a" in line:
             if "medium" in line:
                 en_id = re.match(r'^(\S+)', line).group(1)
-        if vi_id is not None and en_id is not None:
+        if (vi_id is not None and en_id is not None):
             break
 
-    # if not best and matches:
-    #     best = matches[0]
+    print(f"Vietnamese audio ID: {vi_id}, English audio ID: {en_id}")
+
     if vi_id is not None and en_id is not None:
         download_audio_from_youtube(vi_id, youtube_url, os.path.join(dir_vie_m4a, f'{idx}.m4a'))
         download_audio_from_youtube(en_id, youtube_url, os.path.join(dir_en_m4a, f'{idx}.m4a'))
 
     df.at[idx, 'had_collected'] = 1
+    count += 1
 
 df.to_csv(audio_link, index=False)
+print("[data] Updated audio link statuses saved to", audio_link)

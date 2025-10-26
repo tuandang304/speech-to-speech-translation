@@ -17,7 +17,7 @@ def convert_m4a_to_wav(input_path, output_path):
             
             audio = AudioSegment.from_file(m4a_path, format="m4a")
             audio.export(wav_path, format="wav")
-            print(f"Converted {m4a_path} to {wav_path}")
+            print(f"[data] Converted {m4a_path} to {wav_path}")
 
 convert_m4a_to_wav(input_folder_vie, output_folder_vie)
 convert_m4a_to_wav(input_folder_en, output_folder_en)
